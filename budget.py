@@ -1,9 +1,13 @@
 class Category:
-    ledger = []
+    # wow! this attribute really messed me up
+    # it seems all instances of Category were sharing the same
+    # ledger?!?
+    #ledger = []
 
     def __init__(self, name):
         if name is None:
             raise TypeError("name cannot be None")
+        self.ledger = []
         self.name = name
 
     def deposit(self, amount, description=""):
@@ -20,23 +24,25 @@ class Category:
         return True
 
     def get_balance(self):
-        pass
-
-    def transfer(self, amount, category):
-        pass
-
-    def check_funds(self, amount):
-        balance = self._get_balance()
-        if balance >= amount:
-            return True
-        else:
-            return False
-
-    def _get_balance(self):
         total = 0
         for tx in self.ledger:
             total += tx['amount']
         return total
+
+    def transfer(self, amount, category):
+        self._validate_amount(amount)
+        if not self.check_funds(amount):
+            return False
+        self.withdraw(amount, f"Transfer to {category.name}")
+        category.deposit(amount, f"Transfer from {self.name}")
+        return True
+
+    def check_funds(self, amount):
+        balance = self.get_balance()
+        if balance >= amount:
+            return True
+        else:
+            return False
 
     def _validate_amount(self, amount):
         if type(amount) not in [int, float]:
