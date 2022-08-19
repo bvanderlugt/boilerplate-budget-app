@@ -51,7 +51,14 @@ class Category:
             raise ValueError("amount cannot be a negative number")
 
     def __repr__(self):
-        return "Not Implemented"
+        ret = f"{self.name:*^30}\n"
+        for tx in self.ledger:
+            description = tx['description'][:23]
+            amount = tx['amount']
+            pad_len = max(33 - (len(str(description)) + len(str(amount))), 7)
+            ret += f"{description}{amount:>{pad_len}.2f}\n"
+        ret += f"Total: {self.get_balance()}"
+        return ret
 
 def create_spend_chart(categories):
     pass
