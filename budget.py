@@ -61,4 +61,50 @@ class Category:
         return ret
 
 def create_spend_chart(categories):
-    pass
+    ret = "Percentage spent by category\n"
+    spent = {}
+    total_spent = 0
+
+    # sum the total spent and create a dict to store spent per category 
+    for category in categories:
+        for tx in category.ledger:
+            # check if transaction is a withdraw
+            if tx['amount'] < 0:
+                total_spent += tx['amount']
+                spent[category.name] = spent.get(category.name, 0) + tx['amount']
+
+    # create a list to store category and percentages
+    percentages = []
+    for key, val in spent.items():
+        # This might look wacky but we are:
+        # get whole number percent value: (100*(val/total_spent)) 
+        # round down to nearest 10's place: x//10*10
+        percentage = (100*(val/total_spent))//10 *10
+        category = key
+        percentages.append((category, percentage))
+    for interval in range(100, -1, -10):
+        bubbles = ['o' if elem[1] >= interval else ' ' for elem in percentages]
+        ret += f"{interval:>3}| {'  '.join(bubbles)}  \n"
+    # TODO make this dynamic, probably len(category) * n + whatever we need for
+    # margins
+    ret += f"{10*'-':>14}\n"
+    max_category_name_len = 0
+
+    # we are going to loop through the Category names and print each character
+    # vertically
+    # so first get the max len of Category names
+    for percent in percentages:
+        len_name = len(percent[0])
+        if len_name > max_category_name_len:
+            max_category_name_len = len_name
+    # Loop through each Category name and append character to new line
+    for i in range(max_category_name_len):
+        char_line = []
+        for percent in percentages:
+            try:
+                char_line.append(percent[0][i])
+            except IndexError:
+                char_line.append(' ')
+        ret += f"{' ':>5}{'  '.join(char_line)}\n"
+    print(ret)
+    return ret
