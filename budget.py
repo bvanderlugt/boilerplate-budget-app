@@ -105,6 +105,5 @@ def create_spend_chart(categories):
                 char_line.append(percent[0][i])
             except IndexError:
                 char_line.append(' ')
-        ret += f"{' ':>5}{'  '.join(char_line)}\n"
-    print(ret)
+        ret += f"{' ':>5}{'  '.join(char_line)}{'':>2}\n"
     return ret
